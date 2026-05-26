@@ -1,0 +1,60 @@
+models:
+  coding:       "qwen2.5-coder:7b"
+  general:      "gemma3:4b"
+  document:     "phi4-mini"
+  long_context: "gemma3:27b"
+
+default_model: "gemma3:4b"
+
+task_types:
+  coding:
+    model: coding
+    description: "Software development, code review, debugging, shell scripting"
+  general:
+    model: general
+    description: "General conversation, Q&A, writing, summarisation"
+  document:
+    model: document
+    description: "PDF/document analysis, extraction, Paperless queries"
+  long_context:
+    model: long_context
+    description: "Tasks requiring very large context windows"
+
+keyword_rules:
+  - keywords:
+      - "write code"
+      - "debug"
+      - "function"
+      - "```python"
+      - "```bash"
+      - "```javascript"
+      - "```typescript"
+      - "```go"
+      - "```rust"
+      - "shell script"
+      - "dockerfile"
+      - "def "
+      - "import "
+    task_type: coding
+  - keywords:
+      - "document"
+      - "paperless"
+      - "invoice"
+      - "receipt"
+      - "pdf"
+      - "correspondent"
+      - "tag"
+    task_type: document
+  - keywords:
+      - "long context"
+      - "entire file"
+      - "full document"
+      - "summarize this book"
+    task_type: long_context
+
+passthrough:
+  - "qwen2.5-coder:7b"
+  - "gemma3:4b"
+  - "phi4-mini"
+  - "gemma3:27b"
+  - "llama3.2:3b"

@@ -1,0 +1,16 @@
+tools:
+  searxng:
+    enabled: true
+    max_results: 5
+    categories:
+      - general
+      - news
+    language: "en"
+
+  paperless:
+    enabled: true
+    max_results: 10
+    include_content: true
+
+  memory:
+    enabled: true

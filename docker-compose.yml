@@ -4,6 +4,7 @@ services:
     build:
       context: ./router
       dockerfile: Dockerfile
+    image: ghcr.io/compactly8274/ai-unified:latest
     container_name: ai-router
     restart: unless-stopped
     ports:

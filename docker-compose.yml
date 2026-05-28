@@ -12,7 +12,8 @@ services:
       - ai_router_data:/data
       - ./config:/config:ro
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - SQLITE_PATH=/data/memory.db
       - ROUTING_CONFIG_PATH=/config/routing.yaml

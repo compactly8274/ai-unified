@@ -2,14 +2,13 @@ import time
 import httpx
 from fastapi import APIRouter, Request
 
-status_router = APIRouter()
+from .config import get_settings
 
-_active_requests: int = 0
+status_router = APIRouter()
 
 
 @status_router.get("/status")
 async def status(request: Request):
-    from .config import get_settings
     settings = get_settings()
     client: httpx.AsyncClient = request.app.state.http_client
 
@@ -27,7 +26,7 @@ async def status(request: Request):
                 "expires_at": m.get("expires_at"),
             })
     except Exception as e:
-        ollama_error = str(e)
+        ollama_error = f"{type(e).__name__}: {e or 'no details'}"
 
     return {
         "status": "ok",
@@ -38,6 +37,6 @@ async def status(request: Request):
             **({"error": ollama_error} if ollama_error else {}),
         },
         "gateway": {
-            "active_requests": _active_requests,
+            "active_requests": request.app.state.active_requests,
         },
     }

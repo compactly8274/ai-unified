@@ -73,7 +73,7 @@ async def list_models(request: Request) -> ModelList:
         resp.raise_for_status()
         ollama_models = resp.json().get("models", [])
     except httpx.HTTPError as e:
-        raise HTTPException(502, f"Ollama unreachable: {e}")
+        raise HTTPException(502, f"Ollama unreachable: {type(e).__name__}: {e or 'no details'}")
 
     data = [ModelInfo(id=m["name"]) for m in ollama_models]
     for alias in ("coding", "general", "document", "long_context"):
@@ -143,7 +143,7 @@ async def _complete_with_tool_loop(
             )
             resp.raise_for_status()
         except httpx.HTTPError as e:
-            raise HTTPException(502, f"Ollama error: {e}")
+            raise HTTPException(502, f"Ollama error: {type(e).__name__}: {e or 'no details'}")
 
         ollama_data = resp.json()
         assistant_msg = ollama_data.get("message", {})
@@ -209,8 +209,8 @@ async def _stream_with_tool_loop(
                     if done:
                         break
         except httpx.HTTPError as e:
-            error_chunk = {"error": f"Ollama error: {e}"}
-            yield f"data: {json.dumps(error_chunk)}\n\n".encode()
+            msg = f"Ollama error: {type(e).__name__}: {e or 'no details'}"
+            yield f"data: {json.dumps({'error': msg})}\n\n".encode()
             yield b"data: [DONE]\n\n"
             return
 

@@ -3,8 +3,9 @@ from contextlib import asynccontextmanager
 
 import httpx
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 
 from .config import get_settings, load_routing_config, load_tools_config
 from .router import chat_router
@@ -26,6 +27,7 @@ async def lifespan(app: FastAPI):
     logger.info("SQLite memory DB ready", path=settings.sqlite_path)
 
     app.state.http_client = httpx.AsyncClient(timeout=httpx.Timeout(120.0))
+    app.state.active_requests = 0
 
     app.state.routing_config = load_routing_config(ROUTING_CONFIG_PATH)
     app.state.tools_config = load_tools_config(TOOLS_CONFIG_PATH)
@@ -52,6 +54,17 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def count_requests(request: Request, call_next) -> Response:
+        # Don't count the /status poll itself
+        if request.url.path != "/status":
+            request.app.state.active_requests += 1
+        try:
+            return await call_next(request)
+        finally:
+            if request.url.path != "/status":
+                request.app.state.active_requests -= 1
 
     app.include_router(chat_router, prefix="/v1")
     app.include_router(status_router)

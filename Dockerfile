@@ -1,18 +1,33 @@
-# Use official Python image
+# syntax=docker/dockerfile:1.4   # enables BuildKit features
+
 FROM python:3.11-slim
 
-# Set working directory
+# -----------------------------------------------------------------
+# Install system‑level build tools (required for any C extensions)
+# -----------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc \
+        libc-dev \
+        python3-dev \
+        libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# -----------------------------------------------------------------
+# Application work directory
+# -----------------------------------------------------------------
 WORKDIR /app
 
-# Install dependencies if a requirements.txt exists
-COPY requirements.txt .
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
-
-# Copy the rest of the repository
+# -----------------------------------------------------------------
+# Copy the whole project (adjust if you want a slimmer context)
+# -----------------------------------------------------------------
 COPY . .
 
-# Install the package (editable mode)
-RUN pip install -e .
+# -----------------------------------------------------------------
+# Install the package (normal install – containers are immutable)
+# -----------------------------------------------------------------
+RUN pip install --no-cache-dir .
 
-# Default command (override as needed)
-CMD ["python"]
+# -----------------------------------------------------------------
+# Default command – adjust if your library provides a different entrypoint
+# -----------------------------------------------------------------
+CMD ["python", "-m", "ai_unified"]

@@ -6,11 +6,11 @@ import uuid
 from typing import AsyncGenerator
 
 import httpx
-from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from .config import get_settings
-from .models import ChatCompletionRequest, ModelList, ModelInfo
+from .models import ChatCompletionRequest, ModelInfo, ModelList
 from .tools.executor import ToolExecutor
 
 chat_router = APIRouter()

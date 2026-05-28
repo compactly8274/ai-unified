@@ -1,6 +1,6 @@
 """Basic smoke tests for the AI gateway router logic (no live Ollama required)."""
-import sys
 import os
+import sys
 
 import pytest
 import yaml

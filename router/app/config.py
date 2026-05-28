@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 import yaml
 from pydantic_settings import BaseSettings
 

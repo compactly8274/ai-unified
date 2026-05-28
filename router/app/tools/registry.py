@@ -1,6 +1,6 @@
-from .searxng import SearXNGTool
-from .paperless import PaperlessTool
 from .memory import MemoryTool
+from .paperless import PaperlessTool
+from .searxng import SearXNGTool
 
 
 class ToolRegistry:

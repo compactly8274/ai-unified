@@ -1,38 +1,11 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "ai-unified"
 version = "0.1.0"
-description = "Unified interface for multiple AI model providers"
-readme = "README.md"
-requires-python = ">=3.9"
+description = "Unified AI utilities"
 authors = [{name = "compactly8274", email = "youremail@example.com"}]
-license = {text = "MIT"}
-keywords = ["ai", "llm", "openai", "anthropic", "azure"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-dependencies = [
-    "requests",
-    "httpx",
-    "pydantic",
-]
+requires-python = ">=3.9"
+dependencies = []
 
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "black",
-    "mypy",
-]
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-data]
-"" = ["py.typed"]
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"

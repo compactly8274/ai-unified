@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from typing import Any, AsyncGenerator
+from typing import AsyncGenerator
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
@@ -269,8 +269,8 @@ async def _stream_with_tool_loop(
                     if done:
                         break
         except httpx.HTTPError as e:
-            msg = f"Ollama error: {type(e).__name__}: {e or 'no details'}"
-            yield f"data: {json.dumps({'error': msg})}\n\n".encode()
+            error_msg = f"Ollama error: {type(e).__name__}: {e or 'no details'}"
+            yield f"data: {json.dumps({'error': error_msg})}\n\n".encode()
             yield b"data: [DONE]\n\n"
             return
 

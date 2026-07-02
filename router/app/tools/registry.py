@@ -1,14 +1,24 @@
+from __future__ import annotations
+
+from typing import Any
+
+import httpx
+
 from .memory import MemoryTool
 from .paperless import PaperlessTool
 from .searxng import SearXNGTool
 
 
 class ToolRegistry:
-    def __init__(self, tools: list):
+    def __init__(self, tools: list, http_client: httpx.AsyncClient | None = None):
         self._tools = {t.name: t for t in tools}
+        self._http_client = http_client
 
     def get_openai_definitions(self) -> list[dict]:
         return [t.openai_definition() for t in self._tools.values()]
+
+    def get_tool(self, name: str):
+        return self._tools.get(name)
 
     async def execute(self, tool_name: str, arguments: dict) -> str:
         tool = self._tools.get(tool_name)
@@ -20,9 +30,13 @@ class ToolRegistry:
             return f"Error executing {tool_name}: {e}"
 
 
-def build_tool_registry(tools_config: dict, settings) -> ToolRegistry:
+def build_tool_registry(
+    tools_config: dict,
+    settings,
+    http_client: httpx.AsyncClient | None = None,
+) -> ToolRegistry:
     tc = tools_config.get("tools", {})
-    tools = []
+    tools: list = []
 
     if tc.get("searxng", {}).get("enabled", True):
         cfg = tc.get("searxng", {})
@@ -30,6 +44,7 @@ def build_tool_registry(tools_config: dict, settings) -> ToolRegistry:
             base_url=settings.searxng_base_url,
             max_results=cfg.get("max_results", 5),
             categories=cfg.get("categories", ["general"]),
+            http_client=http_client,
         ))
 
     if tc.get("paperless", {}).get("enabled", True):
@@ -38,6 +53,7 @@ def build_tool_registry(tools_config: dict, settings) -> ToolRegistry:
             base_url=settings.paperless_base_url,
             api_token=settings.paperless_api_token,
             max_results=cfg.get("max_results", 10),
+            http_client=http_client,
         ))
 
     if tc.get("memory", {}).get("enabled", True):
@@ -46,4 +62,4 @@ def build_tool_registry(tools_config: dict, settings) -> ToolRegistry:
             max_turns=settings.memory_max_turns,
         ))
 
-    return ToolRegistry(tools)
+    return ToolRegistry(tools, http_client=http_client)

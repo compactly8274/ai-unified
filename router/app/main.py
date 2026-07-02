@@ -71,7 +71,7 @@ def create_app() -> FastAPI:
             token = ""
             if auth.startswith("Bearer "):
                 token = auth[7:]
-            elif auth.startswith(""):
+            elif auth:
                 token = auth
             if token != settings.api_key:
                 return Response(

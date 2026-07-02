@@ -1,8 +1,6 @@
 """Basic smoke tests for the AI gateway router logic (no live Ollama required)."""
-import json
 import os
 import sys
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import yaml

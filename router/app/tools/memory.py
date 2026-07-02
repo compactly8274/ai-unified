@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import json
 import time
 from typing import Any
 
@@ -120,8 +123,6 @@ class MemoryTool:
                 role = turn.get("role", "user")
                 content = turn.get("content", "")
                 if not content and role == "assistant" and turn.get("tool_calls"):
-                    # Serialize tool calls so they're not lost in memory
-                    import json
                     content = json.dumps({"tool_calls": turn["tool_calls"]})
                 if not content:
                     continue

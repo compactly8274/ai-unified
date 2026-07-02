@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Environment files
+.env
+
+# SQLite
+*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Docker build context — keep small
+.github/
+docs/
+tests/
+src/
+*.md
+LICENSE
+.git
+.gitignore

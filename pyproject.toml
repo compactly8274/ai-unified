@@ -1,6 +1,6 @@
 [project]
 name = "ai-unified"
-version = "0.1.0"
+version = "1.1.0"
 description = "Unified AI Gateway — OpenAI-compatible router for Ollama with tool injection"
 requires-python = ">=3.12"
 dependencies = [
@@ -26,6 +26,9 @@ dev = [
 [build-system]
 requires = ["setuptools>=70", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["router"]
 
 [tool.ruff]
 line-length = 100

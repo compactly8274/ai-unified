@@ -1,4 +1,8 @@
+from __future__ import annotations
+
+import json
 import time
+from typing import Any
 
 import aiosqlite
 
@@ -62,7 +66,7 @@ class MemoryTool:
             return "No memory found for this conversation."
         return "\n---\n".join(f"{role.upper()}: {content}" for role, content in rows)
 
-    async def get_turns(self, conversation_id: str, limit: int = None) -> list[tuple]:
+    async def get_turns(self, conversation_id: str, limit: int | None = None) -> list[tuple[str, str]]:
         n = limit or self.max_turns
         async with aiosqlite.connect(self.sqlite_path) as db:
             cursor = await db.execute(
@@ -89,6 +93,44 @@ class MemoryTool:
                 "INSERT INTO conversations VALUES (?, ?, ?, ?, ?)",
                 (conversation_id, next_index, role, content, time.time()),
             )
+
+            # Prune old turns beyond max_turns
+            await db.execute(
+                """
+                DELETE FROM conversations
+                WHERE conversation_id = ?
+                  AND turn_index < (
+                    SELECT MAX(turn_index) - ? + 1
+                    FROM conversations WHERE conversation_id = ?
+                  )
+                """,
+                (conversation_id, self.max_turns, conversation_id),
+            )
+            await db.commit()
+
+    async def append_turns(self, conversation_id: str, turns: list[dict[str, Any]]):
+        """Bulk-append conversation turns (role + content) for a conversation."""
+        async with aiosqlite.connect(self.sqlite_path) as db:
+            # Get current max index
+            cursor = await db.execute(
+                "SELECT COALESCE(MAX(turn_index), -1) + 1 FROM conversations WHERE conversation_id = ?",
+                (conversation_id,),
+            )
+            row = await cursor.fetchone()
+            next_index = row[0]
+
+            for turn in turns:
+                role = turn.get("role", "user")
+                content = turn.get("content", "")
+                if not content and role == "assistant" and turn.get("tool_calls"):
+                    content = json.dumps({"tool_calls": turn["tool_calls"]})
+                if not content:
+                    continue
+                await db.execute(
+                    "INSERT INTO conversations VALUES (?, ?, ?, ?, ?)",
+                    (conversation_id, next_index, role, content, time.time()),
+                )
+                next_index += 1
 
             # Prune old turns beyond max_turns
             await db.execute(

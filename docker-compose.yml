@@ -2,7 +2,7 @@ services:
 
   ai-router:
     build:
-      context: ./router
+      context: .
       dockerfile: Dockerfile
     image: ghcr.io/compactly8274/ai-unified:latest
     container_name: ai-router

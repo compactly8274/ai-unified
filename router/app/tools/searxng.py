@@ -1,13 +1,22 @@
+from __future__ import annotations
+
 import httpx
 
 
 class SearXNGTool:
     name = "web_search"
 
-    def __init__(self, base_url: str, max_results: int = 5, categories: list = None):
+    def __init__(
+        self,
+        base_url: str,
+        max_results: int = 5,
+        categories: list[str] | None = None,
+        http_client: httpx.AsyncClient | None = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.max_results = max_results
         self.categories = categories or ["general"]
+        self._client = http_client
 
     def openai_definition(self) -> dict:
         return {
@@ -36,7 +45,7 @@ class SearXNGTool:
             },
         }
 
-    async def execute(self, query: str, num_results: int = None) -> str:
+    async def execute(self, query: str, num_results: int | None = None) -> str:
         n = min(num_results or self.max_results, 10)
         params = {
             "q": query,
@@ -44,16 +53,21 @@ class SearXNGTool:
             "categories": ",".join(self.categories),
         }
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(f"{self.base_url}/search", params=params)
+        if self._client:
+            resp = await self._client.get(f"{self.base_url}/search", params=params, timeout=10.0)
             resp.raise_for_status()
             data = resp.json()
+        else:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(f"{self.base_url}/search", params=params)
+                resp.raise_for_status()
+                data = resp.json()
 
         results = data.get("results", [])[:n]
         if not results:
             return "No results found."
 
-        lines = []
+        lines: list[str] = []
         for i, r in enumerate(results, 1):
             lines.append(
                 f"{i}. {r.get('title', 'No title')}\n"
